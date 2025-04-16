@@ -165,3 +165,11 @@ h2 {
     margin: 0 auto;
     border-radius: 8px; /* Optional: rounded corners */
 }
+.barcode {
+    font-family: 'Libre Barcode 128', cursive;
+    font-size: 48px;
+    letter-spacing: 2px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: white;
+}
