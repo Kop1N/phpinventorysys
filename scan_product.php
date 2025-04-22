@@ -11,6 +11,7 @@ $apparatus_id = isset($_GET['apparatus_id']) ? $_GET['apparatus_id'] : 0;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $barcode = $_POST['barcode'];
+    $quantity = isset($_POST['quantity']) ? $_POST['quantity'] : 1; // Default to 1 if no quantity provided
 
     // Look up product by barcode
     $stmt = $conn->prepare("SELECT * FROM products WHERE barcode = ?");
@@ -19,12 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Product exists - add to inventory
+        // Product exists - add the specified quantity to inventory
         $product = $result->fetch_assoc();
-        $update_stmt = $conn->prepare("UPDATE products SET quantity = quantity + 1 WHERE id = ?");
-        $update_stmt->bind_param("i", $product['id']);
+        $update_stmt = $conn->prepare("UPDATE products SET quantity = quantity + ? WHERE id = ?");
+        $update_stmt->bind_param("ii", $quantity, $product['id']);
         $update_stmt->execute();
-        $message = "Product '{$product['name']}' quantity increased!";
+        $message = "Product '{$product['name']}' quantity increased by {$quantity}!";
     } else {
         $message = "Product not found. Please add it first.";
     }
@@ -108,6 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="mb-3">
                                 <label for="barcode" class="form-label">Barcode:</label>
                                 <input type="text" class="form-control" name="barcode" id="barcode" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity:</label>
+                                <input type="number" class="form-control" name="quantity" id="quantity" min="1" value="1" required>
                             </div>
                             <button type="submit" class="btn btn-primary">Add Product</button>
                         </form>

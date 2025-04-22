@@ -173,3 +173,18 @@ h2 {
     border: 1px solid #ddd;
     background: white;
 }
+.search-container {
+    display: flex;
+    margin-bottom: 20px;
+
+}
+
+.search-container input {
+    width: 250px; /* This shortens the search bar */
+    
+}
+
+.search-container button {
+    margin-left: 5px;
+
+}

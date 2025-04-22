@@ -16,6 +16,8 @@ $apparatus_id = isset($_GET['apparatus_id']) ? $_GET['apparatus_id'] : 0;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get form data
     $name = $_POST['name'];
+    $shelf_box_number = $_POST['shelf_box_number'];
+    $location = $_POST['location'];
     $description = $_POST['description'];
     $quantity = $_POST['quantity'];
     
@@ -32,8 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Insert product into the database with barcode
-    $stmt = $conn->prepare("INSERT INTO products (name, description, quantity, apparatus_id, barcode) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssiis", $name, $description, $quantity, $apparatus_id, $barcode);
+    $stmt = $conn->prepare("INSERT INTO products (name, description, quantity, apparatus_id, barcode, shelf_box_number, location) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssiisss", $name, $description, $quantity, $apparatus_id, $barcode, $shelf_box_number, $location);
+    
     
     if ($stmt->execute()) {
         $message = "Product added successfully!";
@@ -78,9 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <a class="nav-link" href="add_apparatus.php">Add Apparatus</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="scan_product.php">Scan Product</a>
-                    </li>
-                    <li class="nav-item">
                     <a href="logout.php" class="btn btn-danger btn-sm logout-btn">Logout</a>
                     </li>
                 </ul>
@@ -113,6 +113,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <label for="name" class="form-label">Product Name:</label>
                         <input type="text" class="form-control" name="name" required>
                     </div>
+                    <div class="mb-3">
+                         <label for="shelf_box_number" class="form-label">Shelves/Box Number:</label>
+                         <input type="text" class="form-control" name="shelf_box_number" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location:</label>
+                        <input type="text" class="form-control" name="location" required>
+                    </div>
 
                     <div class="mb-3">
                         <label for="description" class="form-label">Description:</label>
@@ -126,9 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <button type="submit" class="btn btn-success">Add Product</button>
                     <a href="view_inventory.php?apparatus_id=<?= $apparatus_id ?>" class="btn btn-secondary">Back to Inventory</a>
-                    <a href="scan_product.php?apparatus_id=<?= $apparatus_id ?>" class="btn btn-primary">
-                        <i class="bi bi-upc-scan"></i> Scan Product
-                    </a>
                 </form>
             </div>
         </div>
