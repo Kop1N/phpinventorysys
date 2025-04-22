@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: index.php"); // Redirect to the dashboard
         exit();
     } else {
-        echo "Invalid username or password.";
+        echo "<div class='alert alert-danger mt-3'>Invalid username or password.</div>";
     }
 }
 ?>
@@ -31,35 +31,72 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <!-- Add Bootstrap CSS for styling -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
-<body>
+<body style="background-color: #f4f7fc;">
 
-<div class="container">
-    <h2 class="mt-5">Login</h2>
+<!-- Background Image with Low Opacity -->
+<div class="background-image"></div>
 
-    <!-- Login Form -->
-    <form method="POST" action="">
-        <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" name="username" class="form-control" id="username" required>
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%;">
+        <!-- Logo -->
+        <div class="text-center mb-4">
+            <img src="resources/images.png" alt="Logo" class="img-fluid" style="max-width: 150px;">
         </div>
 
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" id="password" required>
-        </div>
+        <body class="login-page">
+          <div class="container">
+           <h2 class="text-center mb-4 login-heading">Login</h2>
+          </div>
+        </body>
 
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
 
-    <!-- Link to the Register Page -->
-    <p class="mt-3">Don't have an account? <a href="register.php" class="btn btn-secondary btn-sm">Register here</a></p>
+        <!-- Login Form -->
+        <form method="POST" action="">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" id="username" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" id="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
+        </form>
+
+        <!-- Register Link -->
+        <p class="mt-3 text-center">Don't have an account? <a href="register.php" class="btn btn-link p-0">Register here</a></p>
+    </div>
 </div>
 
-<!-- Add Bootstrap JS (optional) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+
+    .background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('resources/frontier.jpg'); 
+        background-size: cover;
+        background-position: center;
+        opacity: 0.3; 
+        z-index: -1; 
+    }
+
+  
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+</style>
 
 </body>
 </html>

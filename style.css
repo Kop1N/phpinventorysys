@@ -188,3 +188,10 @@ h2 {
     margin-left: 5px;
 
 }
+
+.login-page .login-heading {
+    color: #003366;
+    font-weight: bolder;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
