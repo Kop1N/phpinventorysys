@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: index.php"); // Redirect to the dashboard
         exit();
     } else {
-        echo "Invalid username or password.";
+        $error_message = "Invalid username or password.";
     }
 }
 ?>
@@ -31,35 +31,70 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <!-- Add Bootstrap CSS for styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light gray background */
+            min-height: 100vh; /* Ensure full viewport height */
+            display: flex;
+            align-items: center; /* Vertically center content */
+            justify-content: center; /* Horizontally center content */
+            margin: 0; /* Remove default body margin */
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            width: 100%;
+        }
+        .mt-3 a {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .alert {
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 class="mt-5">Login</h2>
+    <div class="login-container">
+        <h2 class="text-center mb-4">Login</h2>
 
-    <!-- Login Form -->
-    <form method="POST" action="">
-        <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" name="username" class="form-control" id="username" required>
-        </div>
+        <?php if (isset($error_message)): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo $error_message; ?>
+            </div>
+        <?php endif; ?>
 
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" id="password" required>
-        </div>
+        <form method="POST" action="">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" id="username" required>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" id="password" required>
+            </div>
 
-    <!-- Link to the Register Page -->
-    <p class="mt-3">Don't have an account? <a href="register.php" class="btn btn-secondary btn-sm">Register here</a></p>
-</div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
 
-<!-- Add Bootstrap JS (optional) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <p class="mt-3 text-center">Don't have an account? <a href="register.php" class="btn btn-secondary btn-sm">Register here</a></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
