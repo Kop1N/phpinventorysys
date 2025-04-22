@@ -131,9 +131,7 @@ $apparatus = $apparatus_result->fetch_assoc();
                                 <td><?= $row['updated_at'] ?></td>
                                 <td>
                                     <?= $row['barcode'] ?>
-                                    <?php if ($row['barcode']): ?>
-                                        <br><img src="barcodes/<?= $row['barcode'] ?>.png" alt="Barcode" style="height: 40px;">
-                                    <?php endif; ?>
+                                    
                                 </td>
                                 <td>
                                     <a href="edit_product.php?id=<?= $row['id'] ?>&apparatus_id=<?= $apparatus_id ?>" class="btn btn-warning btn-sm">Edit</a>
