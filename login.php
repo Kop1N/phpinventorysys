@@ -1,13 +1,13 @@
 <?php
 session_start();
-include 'config.php'; // Database connection
+include 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
     // Fetch the user from the database
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username=?");
+    $stmt = $conn->prepare("SELECT id, username, password, role, name FROM users WHERE username=?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -17,7 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Password is correct, start a session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
-        header("Location: index.php"); // Redirect to the dashboard
+        $_SESSION['role'] = $user['role']; // Store user role in session
+        $_SESSION['name'] = $user['name']; // Store user's name in session
+        
+        header("Location: index.php");
         exit();
     } else {
         echo "<div class='alert alert-danger mt-3'>Invalid username or password.</div>";
@@ -69,9 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
         </form>
 
-        <!-- Register Link -->
-        <p class="mt-3 text-center">Don't have an account? <a href="register.php" class="btn btn-link p-0">Register here</a></p>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

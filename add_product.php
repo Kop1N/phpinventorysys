@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 include 'config.php'; // Database connection
+include 'auth.php'; // For currentUserName()
 
 // Get apparatus ID from the URL
 $apparatus_id = isset($_GET['apparatus_id']) ? $_GET['apparatus_id'] : 0;
@@ -20,6 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $location = $_POST['location'];
     $description = $_POST['description'];
     $quantity = $_POST['quantity'];
+    $serial_number = 'FPS' . (isset($_POST['serial_number']) ? $_POST['serial_number'] : '');
+    $invoice_number = $_POST['invoice_number'];
     
     // Generate a unique barcode (EAN-13 format example)
     $barcode = '20' . str_pad(mt_rand(0, 999999999), 10, '0', STR_PAD_LEFT);
@@ -34,13 +37,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Insert product into the database with barcode
-    $stmt = $conn->prepare("INSERT INTO products (name, description, quantity, apparatus_id, barcode, shelf_box_number, location) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssiisss", $name, $description, $quantity, $apparatus_id, $barcode, $shelf_box_number, $location);
-    
+    $stmt = $conn->prepare("INSERT INTO products (name, description, quantity, apparatus_id, barcode, shelf_box_number, location, serial_number, invoice_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssiisssss", $name, $description, $quantity, $apparatus_id, $barcode, $shelf_box_number, $location, $serial_number, $invoice_number);
     
     if ($stmt->execute()) {
         $message = "Product added successfully!";
         $_SESSION['current_barcode'] = $barcode; // Store for download
+        
+        // Log the addition
+        $user_name = currentUserName();
+        $action = "Added";
+        $product_name = $name;
+        $details = "New product added: $name (Qty: $quantity, Serial: $serial_number, Invoice: $invoice_number)";
+        
+        $log_stmt = $conn->prepare("INSERT INTO inventory_logs (user_name, action, product_name, details) VALUES (?, ?, ?, ?)");
+        $log_stmt->bind_param("ssss", $user_name, $action, $product_name, $details);
+        $log_stmt->execute();
     } else {
         $message = "Error adding product!";
     }
@@ -133,6 +145,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input type="number" class="form-control" name="quantity" required min="1" value="1">
                     </div>
 
+                    <div class="mb-3">
+                        <label for="serial_number" class="form-label">Serial Number:</label>
+                        <input type="text" class="form-control" name="serial_number">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="invoice_number" class="form-label">Invoice Number:</label>
+                        <input type="text" class="form-control" name="invoice_number">
+                    </div>
+
                     <button type="submit" class="btn btn-success">Add Product</button>
                     <a href="view_inventory.php?apparatus_id=<?= $apparatus_id ?>" class="btn btn-secondary">Back to Inventory</a>
                 </form>
@@ -157,51 +179,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     });
 
     function downloadBarcode() {
-    const barcode = document.querySelector('code.fs-5')?.textContent;
-    if (!barcode) {
-        alert('No barcode available to download');
-        return;
-    }
-    
-    // Create a temporary SVG element
-    const tempDiv = document.createElement('div');
-    document.body.appendChild(tempDiv);
-    tempDiv.innerHTML = `<svg id="temp-barcode"></svg>`;
-    
-    // Generate barcode in memory
-    JsBarcode('#temp-barcode', barcode, {
-        format: "CODE128",
-        lineColor: "#000",
-        width: 2,
-        height: 100,
-        displayValue: true,
-        fontSize: 16
-    });
-    
-    // Convert SVG to PNG and download
-    const svg = document.getElementById('temp-barcode');
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    img.onload = function() {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        const barcode = document.querySelector('code.fs-5')?.textContent;
+        if (!barcode) {
+            alert('No barcode available to download');
+            return;
+        }
         
-        const pngFile = canvas.toDataURL('image/png');
-        const downloadLink = document.createElement('a');
-        downloadLink.href = pngFile;
-        downloadLink.download = `barcode_${barcode}.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        document.body.removeChild(tempDiv);
-    };
-    
-    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-}
+        // Create a temporary SVG element
+        const tempDiv = document.createElement('div');
+        document.body.appendChild(tempDiv);
+        tempDiv.innerHTML = `<svg id="temp-barcode"></svg>`;
+        
+        // Generate barcode in memory
+        JsBarcode('#temp-barcode', barcode, {
+            format: "CODE128",
+            lineColor: "#000",
+            width: 2,
+            height: 100,
+            displayValue: true,
+            fontSize: 16
+        });
+        
+        // Convert SVG to PNG and download
+        const svg = document.getElementById('temp-barcode');
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = function() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            
+            const pngFile = canvas.toDataURL('image/png');
+            const downloadLink = document.createElement('a');
+            downloadLink.href = pngFile;
+            downloadLink.download = `barcode_${barcode}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            document.body.removeChild(tempDiv);
+        };
+        
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    }
     </script>
 </body>
 </html>

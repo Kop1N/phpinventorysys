@@ -1,14 +1,12 @@
 <?php
 session_start();
-
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
 include 'config.php';
-
+include 'auth.php';
 $apparatus_id = isset($_GET['apparatus_id']) ? $_GET['apparatus_id'] : 0;
 
 // --- Handle Search ---
@@ -21,9 +19,11 @@ $params[] = $apparatus_id;
 
 if ($search_submitted) {
     $search_term = $_GET['search'];
-    $search_query = "AND (name LIKE ? OR description LIKE ? OR barcode LIKE ?)";
-    $types .= 'sss';
+    $search_query = "AND (name LIKE ? OR description LIKE ? OR barcode LIKE ? OR serial_number LIKE ? OR invoice_number LIKE ?)";
+    $types .= 'sssss';
     $like_term = '%' . $search_term . '%';
+    $params[] = $like_term;
+    $params[] = $like_term;
     $params[] = $like_term;
     $params[] = $like_term;
     $params[] = $like_term;
@@ -65,15 +65,26 @@ $apparatus = $apparatus_result->fetch_assoc();
                 <img src="resources/images.png" alt="Logo" class="img-fluid" style="max-width: 120px;">
             </div>
             <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.php">View Apparatus</a>
+             <li class="nav-item">
+                <a class="nav-link" href="index.php">View Apparatus</a>
+             </li>
+             <li class="nav-item">
+                    <a class="nav-link" href="account_settings.php">User Account Settings</a>
                 </li>
+                <?php if (isAdmin()): ?>
                 <li class="nav-item">
-                    <a href="scan_product.php?apparatus_id=<?= $apparatus_id ?>" class="nav-link">Scan Product</a>
+                  <a class="nav-link" href="manage_users.php">Manage Users</a>
                 </li>
-                <li class="nav-item">
-                    <a href="logout.php" class="btn btn-danger btn-sm logout-btn">Logout</a>
-                </li>
+                <?php endif; ?>
+             <li class="nav-item">
+                  <a href="logs.php" class="nav-link">View Logs</a>
+            </li>
+            <li class="nav-item">
+            <span class="nav-link" style="color:rgb(141, 51, 51);">Logged in as: <?= htmlspecialchars(currentUserName()) ?> (<?= currentUserRole() ?>)</span>
+            </li>
+            <li class="nav-item">
+             <a href="logout.php" class="btn btn-danger btn-sm logout-btn">Logout</a>
+            </li>
             </ul>
         </div>
 
@@ -84,7 +95,12 @@ $apparatus = $apparatus_result->fetch_assoc();
             <!-- Top Controls -->
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div class="d-flex gap-2">
+                    <?php if (isAdmin()): ?>
+                    <a href="scan_product.php?apparatus_id=<?= $apparatus_id ?>" class="btn btn-primary">Scan Product</a>
+                    <?php endif; ?>
+                    <?php if (isAdmin()): ?>
                     <a href="add_product.php?apparatus_id=<?= $apparatus_id ?>" class="btn btn-primary">Add Product</a>
+                    <?php endif; ?>
                     <a href="download.php?apparatus_id=<?= $apparatus_id ?>" class="btn btn-info">Download CSV</a>
                 </div>
 
@@ -106,12 +122,13 @@ $apparatus = $apparatus_result->fetch_assoc();
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Serial Number</th>
                             <th>Name</th>
                             <th>Shelves/Box #</th>
                             <th>Location</th>
                             <th>Description</th>
                             <th>Quantity</th>
+                            <th>Invoice Number</th>
                             <th>Created</th>
                             <th>Updated</th>
                             <th>Barcode</th>
@@ -119,23 +136,25 @@ $apparatus = $apparatus_result->fetch_assoc();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $counter = 1; while ($row = $result->fetch_assoc()): ?>
+                        <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td><?= $counter++ ?></td>
+                                <td><?= htmlspecialchars($row['serial_number']) ?></td>
                                 <td><?= htmlspecialchars($row['name']) ?></td>
                                 <td><?= htmlspecialchars($row['shelf_box_number']) ?></td>
                                 <td><?= htmlspecialchars($row['location']) ?></td>
                                 <td><?= htmlspecialchars($row['description']) ?></td>
                                 <td><?= $row['quantity'] ?></td>
+                                <td><?= htmlspecialchars($row['invoice_number']) ?></td>
                                 <td><?= $row['created_at'] ?></td>
                                 <td><?= $row['updated_at'] ?></td>
                                 <td>
                                     <?= $row['barcode'] ?>
-                                    
                                 </td>
                                 <td>
+                                    <?php if (isAdmin()): ?>
                                     <a href="edit_product.php?id=<?= $row['id'] ?>&apparatus_id=<?= $apparatus_id ?>" class="btn btn-warning btn-sm">Edit</a>
                                     <a href="delete.php?id=<?= $row['id'] ?>&apparatus_id=<?= $apparatus_id ?>" class="btn btn-danger btn-sm" onclick="return confirm('Delete this product?')">Delete</a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
